@@ -182,14 +182,14 @@ public class VmProvisionTaskService extends StatefulService {
       }
     };
 
-    /*try {
-      HostUtils.getApiClient(this).getProjectApi().createVmAsync(
+    try {
+      HostUtils.getVcClient().createVmAsync(
           currentState.projectId,
           composeVmCreateSpec(currentState),
           callback);
-    } catch (IOException ex) {
+    } catch (Throwable ex) {
       failTask(ex);
-    }*/
+    }
   }
 
   private VmCreateSpec composeVmCreateSpec(final State currentState) {
@@ -235,11 +235,11 @@ public class VmProvisionTaskService extends StatefulService {
 
     final File isoFile = new File("/tmp",
         CONFIG_FILENAME + "-" + currentState.vmId + ".iso");
-    final File userDataConfigFile = new File(HostUtils.getScriptsDirectory(this),
+    final File userDataConfigFile = new File(HostUtils.getClusterManagerScriptsDirectory(),
         CONFIG_FILENAME + "-user-data-" + currentState.vmId + ".yml");
-    final File metaDataConfigFile = new File(HostUtils.getScriptsDirectory(this),
+    final File metaDataConfigFile = new File(HostUtils.getClusterManagerScriptsDirectory(),
         CONFIG_FILENAME + "-meta-data-" + currentState.vmId + ".yml");
-    File scriptLogFile = new File(HostUtils.getScriptsDirectory(this),
+    File scriptLogFile = new File(HostUtils.getClusterManagerScriptsDirectory(),
         SCRIPT_NAME + "-" + currentState.vmId + ".log");
 
     String userDataConfigFilename = createFile(currentState.userData, userDataConfigFile);
@@ -253,7 +253,7 @@ public class VmProvisionTaskService extends StatefulService {
     command.add(metaDataConfigFilename);
 
     ScriptRunner scriptRunner = new ScriptRunner.Builder(command, ClusterManagerConstants.SCRIPT_TIMEOUT_IN_SECONDS)
-        .directory(HostUtils.getScriptsDirectory(this))
+        .directory(HostUtils.getClusterManagerScriptsDirectory())
         .redirectOutput(ProcessBuilder.Redirect.to(scriptLogFile))
         .build();
 
@@ -367,7 +367,9 @@ public class VmProvisionTaskService extends StatefulService {
   }
 
   private void processTask(Task task, final State currentState, final State patchState) {
-    ApiUtils.pollTaskAsync(
+	  patchState.vmId = task.getEntity().getId();
+	  TaskUtils.sendSelfPatch(VmProvisionTaskService.this, patchState);  
+    /*ApiUtils.pollTaskAsync(
         task,
         HostUtils.getApiClient(this),
         this,
@@ -376,7 +378,7 @@ public class VmProvisionTaskService extends StatefulService {
           @Override
           public void onSuccess(@Nullable Task result) {
             if (currentState.vmId == null) {
-//              patchState.vmId = task.getEntity().getId();
+              patchState.vmId = task.getEntity().getId();
             }
             TaskUtils.sendSelfPatch(VmProvisionTaskService.this, patchState);
           }
@@ -386,7 +388,7 @@ public class VmProvisionTaskService extends StatefulService {
             failTask(t);
           }
         }
-    );
+    );*/
   }
 
   /**

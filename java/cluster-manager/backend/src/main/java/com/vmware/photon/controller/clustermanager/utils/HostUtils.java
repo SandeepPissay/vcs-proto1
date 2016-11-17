@@ -14,15 +14,19 @@
 package com.vmware.photon.controller.clustermanager.utils;
 
 import com.vmware.photon.controller.api.client.ApiClient;
+import com.vmware.photon.controller.api.client.VcClient;
 import com.vmware.photon.controller.clustermanager.ClusterManagerFactory;
 import com.vmware.photon.controller.clustermanager.ClusterManagerFactoryProvider;
 import com.vmware.photon.controller.clustermanager.clients.EtcdClient;
 import com.vmware.photon.controller.clustermanager.clients.KubernetesClient;
 import com.vmware.photon.controller.clustermanager.clients.MesosClient;
 import com.vmware.photon.controller.clustermanager.clients.SwarmClient;
+import com.vmware.photon.controller.common.thrift.StaticServerSet;
 import com.vmware.photon.controller.common.xenon.CloudStoreHelper;
 import com.vmware.photon.controller.common.xenon.host.PhotonControllerXenonHost;
 import com.vmware.xenon.common.Service;
+
+import java.net.InetSocketAddress;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
 
@@ -54,9 +58,29 @@ public class HostUtils {
   public static ListeningExecutorService getListeningExecutorService(Service service) {
     return getClusterManagerFactory(service).getListeningExecutorServiceInstance();
   }
+  
+  public static VcClient getVcClient() {
+	  return VcClient.getVcClient();
+	  
+  }
 
+  /**
+   * Added as part off VCS work.
+   * 
+   * @param service
+   * @return
+   */
+  public static CloudStoreHelper createCloudStoreHelper(Service service) {
+		return new CloudStoreHelper(new StaticServerSet(new InetSocketAddress("127.0.0.1", 19000)));
+  }
+  
   public static CloudStoreHelper getCloudStoreHelper(Service service) {
     return getClusterManagerFactory(service).createCloudStoreHelper();
+  }
+  
+  public static String getClusterManagerScriptsDirectory() {
+	  // Make this point to the cluster manager's script directory
+	  return "/root/vcs-5/java/cluster-manager/backend/src/main/resources/scripts";
   }
 
   public static String getScriptsDirectory(Service service) {

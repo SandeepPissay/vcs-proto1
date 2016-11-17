@@ -139,7 +139,8 @@ public class KubernetesClusterCreateTaskService extends StatefulService {
    * @param currentState
    */
   private void setupEtcds(KubernetesClusterCreateTask currentState) {
-    sendRequest(HostUtils.getCloudStoreHelper(this)
+    //sendRequest(HostUtils.getCloudStoreHelper(this)
+    sendRequest(HostUtils.createCloudStoreHelper(this)
         .createGet(ClusterServiceFactory.SELF_LINK + "/" + currentState.clusterId)
         .setReferer(getUri())
         .setCompletion((operation, throwable) -> {
@@ -425,7 +426,7 @@ public class KubernetesClusterCreateTaskService extends StatefulService {
                             final ClusterService.State clusterPatchState) {
 
     sendRequest(
-        HostUtils.getCloudStoreHelper(this)
+        HostUtils.createCloudStoreHelper(this)
             .createPatch(ClusterServiceFactory.SELF_LINK + "/" + currentState.clusterId)
             .setBody(clusterPatchState)
             .setCompletion(

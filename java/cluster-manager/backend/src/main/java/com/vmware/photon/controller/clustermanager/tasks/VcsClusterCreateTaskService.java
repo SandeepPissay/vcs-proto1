@@ -1,5 +1,7 @@
 package com.vmware.photon.controller.clustermanager.tasks;
 
+import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,10 +30,11 @@ public class VcsClusterCreateTaskService extends StatelessService {
 	public void handleStart(Operation start) {
 		ServiceUtils.logInfo(this, "Starting service %s with operation (%s)", getSelfLink(), start);
 		ClusterService.State cluster = start.getBody(ClusterService.State.class);
+		cluster.documentSelfLink = UUID.randomUUID().toString();
 		ServiceUtils.logInfo(this, "Cluster = (%s)", cluster);
 		start.complete();
 		try {
-		    VcsXenonRestClient.getVcsRestClient().post(
+		    Operation op = VcsXenonRestClient.getVcsRestClient().post(
 		            ClusterServiceFactory.SELF_LINK,
 		            cluster);
 		    KubernetesClusterCreateTask createTask = new KubernetesClusterCreateTask();
