@@ -149,7 +149,8 @@ public class ClusterWaitTaskService extends StatefulService {
         Preconditions.checkNotNull(currentState.nodeAddresses, "nodeAddresses should not be null");
         Preconditions.checkArgument(currentState.nodeAddresses.size() > 0, "nodeAddresses should not be empty");
 
-        SlavesStatusChecker slavesStatusChecker = getStatusCheckHelper()
+//        SlavesStatusChecker slavesStatusChecker = getStatusCheckHelper()
+        SlavesStatusChecker slavesStatusChecker = new StatusCheckHelper()
             .createSlavesStatusChecker(this, currentState.nodeType);
         slavesStatusChecker.checkSlavesStatus(currentState.serverAddress, currentState.nodeAddresses, callback);
         break;
@@ -161,7 +162,8 @@ public class ClusterWaitTaskService extends StatefulService {
       case MesosMarathon:
       case SwarmEtcd:
       case SwarmMaster:
-        StatusChecker statusChecker = getStatusCheckHelper()
+//        StatusChecker statusChecker = getStatusCheckHelper()
+        StatusChecker statusChecker = new StatusCheckHelper()
             .createStatusChecker(this, currentState.nodeType);
         statusChecker.checkNodeStatus(currentState.serverAddress, callback);
         break;

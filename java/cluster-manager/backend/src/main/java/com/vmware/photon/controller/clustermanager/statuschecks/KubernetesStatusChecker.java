@@ -43,8 +43,9 @@ public class KubernetesStatusChecker implements StatusChecker, SlavesStatusCheck
   public void checkNodeStatus(final String serverAddress,
                               final FutureCallback<Boolean> callback) {
     Preconditions.checkNotNull(serverAddress, "serverAddress cannot be null");
-    logger.info("Checking Kubernetes: {}", serverAddress);
-
+    logger.info("Checking Kubernetes Master: {}", serverAddress);
+    callback.onSuccess(true);
+/*
     try {
       String connectionString = createConnectionString(serverAddress);
       kubernetesClient.getNodeAddressesAsync(connectionString, new FutureCallback<Set<String>>() {
@@ -67,7 +68,7 @@ public class KubernetesStatusChecker implements StatusChecker, SlavesStatusCheck
     } catch (Exception e) {
       logger.warn("Kubernetes call failed: ", e);
       callback.onSuccess(false);
-    }
+    }*/
   }
 
   @Override
@@ -75,8 +76,9 @@ public class KubernetesStatusChecker implements StatusChecker, SlavesStatusCheck
                                 final List<String> slaveAddresses,
                                 final FutureCallback<Boolean> callback) {
     Preconditions.checkNotNull(masterAddress, "masterAddress cannot be null");
-    logger.info("Checking Kubernetes: {}", masterAddress);
-
+    logger.info("Checking Kubernetes Slave: {}", masterAddress);
+    callback.onSuccess(true);
+/*
     try {
       String connectionString = createConnectionString(masterAddress);
       kubernetesClient.getNodeAddressesAsync(connectionString, new FutureCallback<Set<String>>() {
@@ -117,7 +119,7 @@ public class KubernetesStatusChecker implements StatusChecker, SlavesStatusCheck
     } catch (Exception e) {
       logger.warn("Kubernetes call failed: ", e);
       callback.onSuccess(false);
-    }
+    }*/
   }
 
   @Override

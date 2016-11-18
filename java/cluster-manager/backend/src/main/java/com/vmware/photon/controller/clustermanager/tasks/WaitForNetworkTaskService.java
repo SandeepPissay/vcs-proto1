@@ -13,9 +13,11 @@
 
 package com.vmware.photon.controller.clustermanager.tasks;
 
+import com.vmware.photon.controller.api.model.NetworkConnection;
 //import com.vmware.photon.controller.api.client.resource.VmApi;
 //import com.vmware.photon.controller.api.model.NetworkConnection;
 import com.vmware.photon.controller.api.model.Task;
+import com.vmware.photon.controller.api.model.VmNetworks;
 //import com.vmware.photon.controller.api.model.VmNetworks;
 import com.vmware.photon.controller.clustermanager.servicedocuments.ClusterManagerConstants;
 import com.vmware.photon.controller.clustermanager.utils.ApiUtils;
@@ -131,7 +133,8 @@ public class WaitForNetworkTaskService extends StatefulService {
 
   private void callGetNetworks(final State currentState) throws IOException {
 
-    /*HostUtils.getApiClient(this).getVmApi().getNetworksAsync(currentState.vmId,
+//    HostUtils.getApiClient(this).getVmApi().getNetworksAsync(currentState.vmId,
+	  HostUtils.getVcClient().getNetworksAsync(currentState.vmId,
         new FutureCallback<Task>() {
           @Override
           public void onSuccess(@Nullable Task task) {
@@ -146,12 +149,17 @@ public class WaitForNetworkTaskService extends StatefulService {
           public void onFailure(Throwable throwable) {
             failTask(throwable);
           }
-        });*/
+        });
   }
 
   private void processTask(final State currentState, Task task) {
 
-    ApiUtils.pollTaskAsync(task,
+	try {
+		processVmNetworks(currentState, task);
+	} catch (IOException e) {
+		failTask(e);
+	}
+    /*ApiUtils.pollTaskAsync(task,
         HostUtils.getApiClient(this),
         this,
         currentState.taskPollDelay,
@@ -169,11 +177,12 @@ public class WaitForNetworkTaskService extends StatefulService {
           public void onFailure(Throwable throwable) {
             failTask(throwable);
           }
-        });
+        });*/
   }
 
   private void processVmNetworks(final State currentState, Task task) throws IOException {
-    /*VmNetworks vmNetworks = VmApi.parseVmNetworksFromTask(task);
+    //VmNetworks vmNetworks = VmApi.parseVmNetworksFromTask(task);
+	VmNetworks vmNetworks = (VmNetworks) task.getResourceProperties();
     ServiceUtils.logInfo(this, "Received VM networks response: " + Utils.toJson(false, true, vmNetworks));
     for (NetworkConnection networkConnection : vmNetworks.getNetworkConnections()) {
       // We look for the first NIC that has a MAC address with a VMware OUI and an IP Address
@@ -186,7 +195,7 @@ public class WaitForNetworkTaskService extends StatefulService {
         TaskUtils.sendSelfPatch(this, patchState);
         return;
       }
-    }*/
+    }
 
     if (currentState.apiCallPollIterations >= currentState.maxApiCallPollIterations) {
       failTask(new IllegalStateException("VM failed to acquire an IP address"));
@@ -239,7 +248,7 @@ public class WaitForNetworkTaskService extends StatefulService {
     return patchState;
   }
 
-  /*private boolean isVmwareMacAddress(NetworkConnection connection) {
+  private boolean isVmwareMacAddress(NetworkConnection connection) {
     String macAddress = connection.getMacAddress();
     if (!Strings.isNullOrEmpty(macAddress)) {
       if (macAddress.toLowerCase().startsWith(ESX_MAC_OUI)
@@ -248,7 +257,7 @@ public class WaitForNetworkTaskService extends StatefulService {
       }
     }
     return false;
-  }*/
+  }
 
   /**
    * This class represents the document state associated with a {@link WaitForNetworkTaskService} task.

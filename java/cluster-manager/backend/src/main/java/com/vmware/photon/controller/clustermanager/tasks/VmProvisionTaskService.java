@@ -13,6 +13,7 @@
 package com.vmware.photon.controller.clustermanager.tasks;
 
 import com.vmware.photon.controller.api.client.ApiClient;
+import com.vmware.photon.controller.api.client.VcClient;
 import com.vmware.photon.controller.api.model.AttachedDiskCreateSpec;
 import com.vmware.photon.controller.api.model.EphemeralDisk;
 import com.vmware.photon.controller.api.model.Task;
@@ -258,7 +259,7 @@ public class VmProvisionTaskService extends StatefulService {
         .build();
 
     ListenableFutureTask<Integer> futureTask = ListenableFutureTask.create(scriptRunner);
-    HostUtils.getListeningExecutorService(this).submit(futureTask);
+    HostUtils.getVcsListeningExecutorService().submit(futureTask);
 
     FutureCallback<Integer> futureCallback = new FutureCallback<Integer>() {
       @Override
@@ -300,11 +301,11 @@ public class VmProvisionTaskService extends StatefulService {
   }
 
   private void attachAndUploadIso(final State currentState, final String isoFile) throws IOException {
-    final ApiClient client = HostUtils.getApiClient(this);
+//    final ApiClient client = HostUtils.getApiClient(this);
+	final VcClient client = HostUtils.getVcClient();
     ListenableFutureTask<Task> futureTask = ListenableFutureTask.create(() -> {
       try {
-        //return client.getVmApi().uploadAndAttachIso(currentState.vmId, isoFile);
-    	  return null;
+        return client.uploadAndAttachIso(currentState.vmId, isoFile);
       } catch (RuntimeException e) {
         throw e;
       } catch (Exception e) {
@@ -312,7 +313,7 @@ public class VmProvisionTaskService extends StatefulService {
       }
     });
 
-    HostUtils.getListeningExecutorService(this).submit(futureTask);
+    HostUtils.getVcsListeningExecutorService().submit(futureTask);
 
     FutureCallback<Task> futureCallback = new FutureCallback<Task>() {
       @Override
@@ -345,8 +346,8 @@ public class VmProvisionTaskService extends StatefulService {
    * @param currentState Supplies the current state object.
    */
   private void startVm(State currentState) {
-    /*try {
-      HostUtils.getApiClient(this).getVmApi().performStartOperationAsync(
+    try {
+      HostUtils.getVcClient().performStartOperationAsync(
           currentState.vmId,
           new FutureCallback<Task>() {
             @Override
@@ -361,13 +362,15 @@ public class VmProvisionTaskService extends StatefulService {
             }
           }
       );
-    } catch (IOException e) {
+    } catch (Throwable e) {
       failTask(e);
-    }*/
+    }
   }
 
   private void processTask(Task task, final State currentState, final State patchState) {
-	  patchState.vmId = task.getEntity().getId();
+	  if (currentState.vmId == null) {
+	     patchState.vmId = task.getEntity().getId();
+	  }
 	  TaskUtils.sendSelfPatch(VmProvisionTaskService.this, patchState);  
     /*ApiUtils.pollTaskAsync(
         task,

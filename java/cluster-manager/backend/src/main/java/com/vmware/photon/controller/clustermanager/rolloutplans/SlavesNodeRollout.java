@@ -126,7 +126,8 @@ public class SlavesNodeRollout implements NodeRollout {
     };
 
     NodeTemplate template = NodeTemplateFactory.createInstance(input.nodeType);
-    String scriptDirectory = HostUtils.getScriptsDirectory(service);
+//    String scriptDirectory = HostUtils.getScriptsDirectory(service);
+    String scriptDirectory = HostUtils.getClusterManagerScriptsDirectory();
 
     Map<String, String> nodeProperties = new HashMap<>(input.nodeProperties);
     nodeProperties.put(NodeTemplateUtils.NODE_INDEX_PROPERTY, Integer.toString(nodeIndex));

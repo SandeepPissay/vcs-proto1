@@ -193,7 +193,8 @@ public class KubernetesClusterCreateTaskService extends StatefulService {
    * @param currentState
    */
   private void setupMaster(final KubernetesClusterCreateTask currentState) {
-    sendRequest(HostUtils.getCloudStoreHelper(this)
+    //sendRequest(HostUtils.getCloudStoreHelper(this)
+    sendRequest(HostUtils.createCloudStoreHelper(this)
         .createGet(ClusterServiceFactory.SELF_LINK + "/" + currentState.clusterId)
         .setReferer(getUri())
         .setCompletion((operation, throwable) -> {
@@ -246,7 +247,8 @@ public class KubernetesClusterCreateTaskService extends StatefulService {
    * @param currentState
    */
   private void setupInitialSlaves(final KubernetesClusterCreateTask currentState) {
-    sendRequest(HostUtils.getCloudStoreHelper(this)
+    //sendRequest(HostUtils.getCloudStoreHelper(this)
+	sendRequest(HostUtils.createCloudStoreHelper(this)
         .createGet(ClusterServiceFactory.SELF_LINK + "/" + currentState.clusterId)
         .setReferer(getUri())
         .setCompletion((operation, throwable) -> {

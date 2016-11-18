@@ -27,24 +27,64 @@ import com.vmware.photon.controller.common.xenon.host.PhotonControllerXenonHost;
 import com.vmware.xenon.common.Service;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.SSLContext;
+
+import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
+import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
+import org.apache.http.nio.conn.ssl.SSLIOSessionStrategy;
+import org.apache.http.ssl.SSLContexts;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 
 /**
  * This class implements utility functions for the deployer Xenon host.
  */
 public class HostUtils {
+	private static final BlockingQueue<Runnable> blockingQueue = new LinkedBlockingDeque<>();
+	private static final ListeningExecutorService listeningExecutorService = MoreExecutors.listeningDecorator(
+	        new ThreadPoolExecutor(
+	            16,
+	            32,
+	            10,
+	            TimeUnit.SECONDS,
+	            blockingQueue));
+	static final CloseableHttpAsyncClient httpClient;
+	
+	static {
+		
+	    try {
+	      SSLContext sslcontext = SSLContexts.custom()
+	          .loadTrustMaterial((chain, authtype) -> true)
+	          .build();
+	      httpClient = HttpAsyncClientBuilder.create()
+	          .setHostnameVerifier(SSLIOSessionStrategy.ALLOW_ALL_HOSTNAME_VERIFIER)
+	          .setSSLContext(sslcontext)
+	          .build();
+	      httpClient.start();
+	    } catch (Throwable e) {
+	      throw new RuntimeException(e);
+	    }
+	}
 
   public static ApiClient getApiClient(Service service) {
     return getClusterManagerFactory(service).createApiClient();
   }
 
   public static EtcdClient getEtcdClient(Service service) {
-    return getClusterManagerFactory(service).createEtcdClient();
+    //return getClusterManagerFactory(service).createEtcdClient();
+	  
+	  return new EtcdClient(httpClient);
   }
 
   public static KubernetesClient getKubernetesClient(Service service) {
-    return getClusterManagerFactory(service).createKubernetesClient();
+//    return getClusterManagerFactory(service).createKubernetesClient();
+    return new KubernetesClient(httpClient);
   }
 
   public static MesosClient getMesosClient(Service service) {
@@ -53,6 +93,10 @@ public class HostUtils {
 
   public static SwarmClient getSwarmClient(Service service) {
     return getClusterManagerFactory(service).createSwarmClient();
+  }
+  
+  public static ListeningExecutorService getVcsListeningExecutorService() {
+	  return listeningExecutorService;
   }
 
   public static ListeningExecutorService getListeningExecutorService(Service service) {
