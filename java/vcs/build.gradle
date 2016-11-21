@@ -21,6 +21,7 @@ repositories {
 dependencies {
     // The production code uses the SLF4J logging API at compile time
     compile 'org.slf4j:slf4j-api:1.7.21'
+    compile project(':vsphere-client')
     compile project(':cluster-manager:service-documents')
     compile project(':cluster-manager:backend')
     compile project(':common')

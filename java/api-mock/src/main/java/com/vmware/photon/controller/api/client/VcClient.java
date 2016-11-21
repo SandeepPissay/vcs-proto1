@@ -1,6 +1,8 @@
 package com.vmware.photon.controller.api.client;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -13,6 +15,8 @@ import com.vmware.photon.controller.api.model.Task;
 import com.vmware.photon.controller.api.model.Task.Entity;
 import com.vmware.photon.controller.api.model.VmCreateSpec;
 import com.vmware.photon.controller.api.model.VmNetworks;
+import com.vmware.vsphere.client.CommandArgument;
+import com.vmware.vsphere.client.CommandExecutor;
 
 public class VcClient {
 	private static final Logger logger = LoggerFactory.getLogger(VcClient.class);
@@ -28,6 +32,10 @@ public class VcClient {
 	public void createVmAsync(String projectId, VmCreateSpec composeVmCreateSpec, FutureCallback<Task> callback) {
 		logger.info("Creating VM in project {} with specification {}", projectId, composeVmCreateSpec);
 		// TODO: Do the actual VM create
+		Map<String, String> args = new HashMap<>();
+		args.put(CommandArgument.VM_NAME, "cluster-manager-vm");
+		CommandExecutor.createVm(args);
+
 		Task vmCreateTask = new Task();
 		String id = UUID.randomUUID().toString();
 		vmCreateTask.setId(id);
