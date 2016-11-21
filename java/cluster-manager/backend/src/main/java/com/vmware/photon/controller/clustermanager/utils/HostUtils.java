@@ -22,6 +22,7 @@ import com.vmware.photon.controller.clustermanager.clients.KubernetesClient;
 import com.vmware.photon.controller.clustermanager.clients.MesosClient;
 import com.vmware.photon.controller.clustermanager.clients.SwarmClient;
 import com.vmware.photon.controller.common.thrift.StaticServerSet;
+import com.vmware.photon.controller.common.utils.VcsProperties;
 import com.vmware.photon.controller.common.xenon.CloudStoreHelper;
 import com.vmware.photon.controller.common.xenon.host.PhotonControllerXenonHost;
 import com.vmware.xenon.common.Service;
@@ -124,7 +125,7 @@ public class HostUtils {
   
   public static String getClusterManagerScriptsDirectory() {
 	  // Make this point to the cluster manager's script directory
-	  return "/root/vcs-5/java/cluster-manager/backend/src/main/resources/scripts";
+	  return VcsProperties.getClusterManagerScriptsDir();
   }
 
   public static String getScriptsDirectory(Service service) {

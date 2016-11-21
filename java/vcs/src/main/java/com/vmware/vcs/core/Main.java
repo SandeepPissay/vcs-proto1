@@ -17,6 +17,7 @@ import com.vmware.photon.controller.common.logging.LoggingFactory;
 import com.vmware.photon.controller.common.thrift.ServerSet;
 import com.vmware.photon.controller.common.thrift.StaticServerSet;
 import com.vmware.photon.controller.common.thrift.ThriftModule;
+import com.vmware.photon.controller.common.utils.VcsProperties;
 import com.vmware.photon.controller.common.xenon.ServiceHostUtils;
 import com.vmware.xenon.common.ServiceHost;
 import com.vmware.xenon.common.ServiceHost.Arguments;
@@ -29,6 +30,7 @@ public class Main {
 
 	public static void main(String[] args) throws Throwable {
 		LoggingFactory.bootstrap();
+		VcsProperties.init(args[0]);
 		logger.info("args: " + Arrays.toString(args));
 		new LoggingFactory(new LoggingConfiguration(), "photon-controller-core").configure();
 
@@ -54,7 +56,7 @@ public class Main {
 		Arguments arguments = new Arguments();
 	    arguments.port = 19000;
 	    arguments.bindAddress = "0.0.0.0";
-	    arguments.sandbox = Paths.get("/root/sandbox_19000");
+	    arguments.sandbox = Paths.get(VcsProperties.getVcsStoragePath());
 	    arguments.peerNodes = new String[] {"http://127.0.0.1:19000"};
 
         arguments.publicUri = UriUtils.buildUri("127.0.0.1", 19000, null, null).toString();
