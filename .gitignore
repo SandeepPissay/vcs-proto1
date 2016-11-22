@@ -35,7 +35,7 @@ ruby/common/test_files/deployment/dcmap.yml
 
 *.gem
 
-#image building related
+
 **/build/
 **/archive/
 **/packer_cache/
@@ -48,4 +48,12 @@ ruby/common/test_files/deployment/dcmap.yml
 .vagrant
 .bundle
 java/containers/photon-controller-core/*.rpm
-/.gradle/
+java/.gradle/
+java/buildSrc/.gradle
+**/gradle/
+**/bin/
+**/test-output/
+*.project
+*.settings
+*.classpath
+*.DS_Store
