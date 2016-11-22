@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.vmware.vim25.AlreadyExistsFaultMsg;
+import com.vmware.vim25.ConcurrentAccessFaultMsg;
 import com.vmware.vim25.DuplicateNameFaultMsg;
 import com.vmware.vim25.FileFaultFaultMsg;
 import com.vmware.vim25.InsufficientResourcesFaultFaultMsg;
@@ -23,18 +24,22 @@ import com.vmware.vim25.RuntimeFaultFaultMsg;
 import com.vmware.vim25.TaskInProgressFaultMsg;
 import com.vmware.vim25.VmConfigFaultFaultMsg;
 import com.vmware.vsphere.client.commands.VMCreate;
+import com.vmware.vsphere.client.commands.VMCreateWithExistingDisk;
+import com.vmware.vsphere.client.commands.VMManageCD;
 
 public class CommandExecutor {
 
-	private static final Logger logger = LoggerFactory.getLogger(CommandExecutor.class);
+	private static final Logger logger = LoggerFactory
+			.getLogger(CommandExecutor.class);
+
 	public static Map<String, String> createVm(Map<String, String> args) {
 		Map<String, String> output = new HashMap<>();
 		VMCreate vmCreate = new VMCreate();
 		vmCreate.setVirtualMachineName(args.get(CommandArgument.VM_NAME));
 		vmCreate.setHostname(INSTANCE.getHostName());
 		vmCreate.setDataCenterName(INSTANCE.getDatacenterName());
-                try {
-                	output.put(CommandOutput.VM_MOREF, vmCreate.createVirtualMachine());
+		try {
+			output.put(CommandOutput.VM_MOREF, vmCreate.createVirtualMachine());
 		} catch (RemoteException | RuntimeFaultFaultMsg
 				| InvalidPropertyFaultMsg | InvalidCollectorVersionFaultMsg
 				| OutOfBoundsFaultMsg | DuplicateNameFaultMsg
@@ -43,6 +48,62 @@ public class CommandExecutor {
 				| FileFaultFaultMsg | InvalidStateFaultMsg
 				| InvalidNameFaultMsg | TaskInProgressFaultMsg e) {
 			String message = "VM creation for parameters " + args + "failed.";
+			logger.error(message, e);
+			throw new RuntimeException(message, e);
+		}
+		return output;
+	}
+
+	public static Map<String, String> createVmWithExistingDisk(
+			Map<String, String> args) {
+		Map<String, String> output = new HashMap<>();
+		VMCreateWithExistingDisk vmCreate = new VMCreateWithExistingDisk();
+		vmCreate.setVirtualMachineName(args.get(CommandArgument.VM_NAME));
+		vmCreate.setHostname(INSTANCE.getHostName());
+		vmCreate.setDataCenterName(INSTANCE.getDatacenterName());
+		vmCreate.setDiskPath(INSTANCE.getDiskPath());
+		try {
+			output.put(CommandOutput.VM_MOREF, vmCreate.createVirtualMachine());
+		} catch (RemoteException | RuntimeFaultFaultMsg
+				| InvalidPropertyFaultMsg | InvalidCollectorVersionFaultMsg
+				| OutOfBoundsFaultMsg | DuplicateNameFaultMsg
+				| VmConfigFaultFaultMsg | InsufficientResourcesFaultFaultMsg
+				| AlreadyExistsFaultMsg | InvalidDatastoreFaultMsg
+				| FileFaultFaultMsg | InvalidStateFaultMsg
+				| InvalidNameFaultMsg | TaskInProgressFaultMsg e) {
+			String message = "VM creation for parameters " + args + "failed.";
+			logger.error(message, e);
+			throw new RuntimeException(message, e);
+		}
+		return output;
+	}
+
+	/**
+	 * Mounts ISO on given VM.
+	 *
+	 * @param args
+	 *            Map with two entries {@link CommandArgument#VM_MOREF} : vm
+	 *            moref {@link CommandArgument#ISO_LOCAL_PATH} : full path of
+	 *            the ISO on datastore.
+	 * @return empty map. TODO add result pass/failed.
+	 */
+	public static Map<String, String> mountIsoToVm(Map<String, String> args) {
+		Map<String, String> output = new HashMap<>();
+		VMManageCD vmCDAdd = new VMManageCD();
+		vmCDAdd.setVmMoRef(args.get(CommandArgument.VM_MOREF));
+		vmCDAdd.setIsoPath(args.get(CommandArgument.ISO_LOCAL_PATH));
+		vmCDAdd.setOperation("add");
+		vmCDAdd.setRemote("false");
+		vmCDAdd.setConnect("true");
+		try {
+			vmCDAdd.doOperation();
+		} catch (RuntimeFaultFaultMsg | InvalidPropertyFaultMsg
+				| DuplicateNameFaultMsg | TaskInProgressFaultMsg
+				| InsufficientResourcesFaultFaultMsg | VmConfigFaultFaultMsg
+				| InvalidDatastoreFaultMsg | FileFaultFaultMsg
+				| ConcurrentAccessFaultMsg | InvalidStateFaultMsg
+				| InvalidCollectorVersionFaultMsg | InvalidNameFaultMsg e) {
+			String message = "VM CD ADD for parameters " + args + "failed.";
 			logger.error(message, e);
 			throw new RuntimeException(message, e);
 		}

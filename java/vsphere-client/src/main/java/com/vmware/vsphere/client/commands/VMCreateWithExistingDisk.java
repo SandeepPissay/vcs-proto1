@@ -121,20 +121,20 @@ public class VMCreateWithExistingDisk extends BaseCommand {
      * @throws RemoteException the remote exception
      * @throws Exception       the exception
      */
-    void createVirtualMachine() throws  RemoteException, RuntimeFaultFaultMsg, InvalidPropertyFaultMsg, InvalidCollectorVersionFaultMsg, OutOfBoundsFaultMsg, DuplicateNameFaultMsg, VmConfigFaultFaultMsg, InsufficientResourcesFaultFaultMsg, AlreadyExistsFaultMsg, InvalidDatastoreFaultMsg, FileFaultFaultMsg, InvalidStateFaultMsg, InvalidNameFaultMsg, TaskInProgressFaultMsg {
+    public String createVirtualMachine() throws  RemoteException, RuntimeFaultFaultMsg, InvalidPropertyFaultMsg, InvalidCollectorVersionFaultMsg, OutOfBoundsFaultMsg, DuplicateNameFaultMsg, VmConfigFaultFaultMsg, InsufficientResourcesFaultFaultMsg, AlreadyExistsFaultMsg, InvalidDatastoreFaultMsg, FileFaultFaultMsg, InvalidStateFaultMsg, InvalidNameFaultMsg, TaskInProgressFaultMsg {
 
         ManagedObjectReference dcmor = vcService.getGetMOREFs().inContainerByType(vcService.getServiceContent().getRootFolder(),
                 "Datacenter").get(dataCenterName);
 
         if (dcmor == null) {
             System.out.println("Datacenter " + dataCenterName + " not found.");
-            return;
+            return null;
         }
         ManagedObjectReference hostmor = vcService.getGetMOREFs().inContainerByType(dcmor, "HostSystem").get(
                 hostname);
         if (hostmor == null) {
             System.out.println("Host " + hostname + " not found");
-            return;
+            return null;
         }
 
         ManagedObjectReference crmor =
@@ -142,7 +142,7 @@ public class VMCreateWithExistingDisk extends BaseCommand {
                         new String[]{"parent"}).get("parent");
         if (crmor == null) {
             System.out.println("No Compute Resource Found On Specified Host");
-            return;
+            return null;
         }
 
         ManagedObjectReference resourcepoolmor =
@@ -178,7 +178,8 @@ public class VMCreateWithExistingDisk extends BaseCommand {
         System.out.println("Powering on the newly created VM "
                 + virtualMachineName);
         // Start the Newly Created VM.
-        powerOnVM(vmMor);
+        //powerOnVM(vmMor);
+        return vmMor.getValue();
     }
 
     /**

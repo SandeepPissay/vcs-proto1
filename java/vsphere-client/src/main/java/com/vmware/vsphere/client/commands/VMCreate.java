@@ -173,7 +173,7 @@ public class VMCreate extends BaseCommand {
         System.out.println("Powering on the newly created VM "
                 + virtualMachineName);
         // Start the Newly Created VM.
-        powerOnVM(vmMor);
+        //powerOnVM(vmMor);
         return vmMor.getValue();
     }
 
