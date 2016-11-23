@@ -3,7 +3,7 @@ package com.vmware.vsphere.client.commands;
 import static com.vmware.vsphere.client.config.VcClientProperties.INSTANCE;
 import org.testng.annotations.Test;
 
-@Test
+@Test(enabled = true)
 public class VMCreateWithExistingDiskTest {
 
 	public void testCreateVm() throws Exception {

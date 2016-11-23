@@ -446,13 +446,35 @@ public class VMCreate extends BaseCommand {
      * @throws RemoteException the remote exception
      * @throws Exception       the exception
      */
-    void powerOnVM(ManagedObjectReference vmMor)
+    public void powerOnVM(ManagedObjectReference vmMor)
             throws RemoteException, RuntimeFaultFaultMsg, InvalidPropertyFaultMsg, InvalidCollectorVersionFaultMsg, TaskInProgressFaultMsg, VmConfigFaultFaultMsg, InsufficientResourcesFaultFaultMsg, FileFaultFaultMsg, InvalidStateFaultMsg {
         ManagedObjectReference cssTask = vcService.getVimPort().powerOnVMTask(vmMor, null);
         if (getTaskResultAfterDone(cssTask)) {
             System.out.println("Success: VM started Successfully");
         } else {
             String msg = "Failure: starting [ " + vmMor.getValue() + "] VM";
+            throw new RuntimeException(msg);
+        }
+    }
+    
+    
+    /**
+     * Power on vm.
+     *
+     * @param vmMor the vm moref
+     * @throws RemoteException the remote exception
+     * @throws Exception       the exception
+     */
+    public void powerOnVM(String vmId)
+            throws RemoteException, RuntimeFaultFaultMsg, InvalidPropertyFaultMsg, InvalidCollectorVersionFaultMsg, TaskInProgressFaultMsg, VmConfigFaultFaultMsg, InsufficientResourcesFaultFaultMsg, FileFaultFaultMsg, InvalidStateFaultMsg {
+    	ManagedObjectReference vmMoref = new ManagedObjectReference();
+    	vmMoref.setType("VirtualMachine");
+    	vmMoref.setValue(vmId);
+        ManagedObjectReference cssTask = vcService.getVimPort().powerOnVMTask(vmMoref, null);
+        if (getTaskResultAfterDone(cssTask)) {
+            System.out.println("Success: VM started Successfully");
+        } else {
+            String msg = "Failure: starting [ " + vmMoref.getValue() + "] VM";
             throw new RuntimeException(msg);
         }
     }

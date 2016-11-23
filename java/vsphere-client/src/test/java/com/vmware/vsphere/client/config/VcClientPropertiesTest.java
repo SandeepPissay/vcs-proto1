@@ -3,7 +3,7 @@ package com.vmware.vsphere.client.config;
 import org.testng.annotations.Test;
 
 public class VcClientPropertiesTest {
-  @Test
+  @Test(enabled = false)
   public void testReadAndPrintProperties() {
 	  System.out.println(VcClientProperties.INSTANCE.getUrl());
 	  System.out.println(VcClientProperties.INSTANCE.getUsername());

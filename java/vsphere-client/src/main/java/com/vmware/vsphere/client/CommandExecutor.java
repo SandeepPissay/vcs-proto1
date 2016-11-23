@@ -23,6 +23,7 @@ import com.vmware.vim25.OutOfBoundsFaultMsg;
 import com.vmware.vim25.RuntimeFaultFaultMsg;
 import com.vmware.vim25.TaskInProgressFaultMsg;
 import com.vmware.vim25.VmConfigFaultFaultMsg;
+import com.vmware.vsphere.client.commands.PutVMFiles;
 import com.vmware.vsphere.client.commands.VMCreate;
 import com.vmware.vsphere.client.commands.VMCreateWithExistingDisk;
 import com.vmware.vsphere.client.commands.VMManageCD;
@@ -95,6 +96,7 @@ public class CommandExecutor {
 		vmCDAdd.setOperation("add");
 		vmCDAdd.setRemote("false");
 		vmCDAdd.setConnect("true");
+		vmCDAdd.setStartConnected("true");
 		try {
 			vmCDAdd.doOperation();
 		} catch (RuntimeFaultFaultMsg | InvalidPropertyFaultMsg
@@ -108,5 +110,29 @@ public class CommandExecutor {
 			throw new RuntimeException(message, e);
 		}
 		return output;
+	}
+	
+	public static void powerOn(String vmId) throws Exception  {
+		VMCreate vmCreate = new VMCreate();
+		vmCreate.powerOnVM(vmId);
+		
+	}
+	
+	public static void uploadAndAttachIso(String vmId, String isoFile) throws Exception {
+		PutVMFiles putVMFiles = new PutVMFiles();
+		putVMFiles.setDatacenter(INSTANCE.getDatacenterName());
+		putVMFiles.setDatastore(INSTANCE.getDatastoreName());
+		putVMFiles.setLocalPath(isoFile);
+		putVMFiles.setRemotePath("/" + vmId + ".iso");
+		putVMFiles.putFile();
+		
+		VMManageCD mountCd = new VMManageCD();
+		mountCd.setVmMoRef(vmId);
+		mountCd.setOperation("add");
+		mountCd.setIsoPath("[" + INSTANCE.getDatastoreName() + "]" + vmId + ".iso");
+		mountCd.setRemote("false");
+		mountCd.setConnect("true");
+		mountCd.setStartConnected("true");
+		mountCd.doOperation();
 	}
 }

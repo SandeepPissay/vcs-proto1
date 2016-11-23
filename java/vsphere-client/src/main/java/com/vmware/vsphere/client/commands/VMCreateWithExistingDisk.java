@@ -341,7 +341,7 @@ public class VMCreateWithExistingDisk extends BaseCommand {
 		deviceConfigSpec.add(floppySpec);
 		deviceConfigSpec.add(diskSpec);
 		if (ideCtlr != null) {
-			deviceConfigSpec.add(cdSpec);
+//			deviceConfigSpec.add(cdSpec);
 			deviceConfigSpec.add(nicSpec);
 		} // else {
 			// deviceConfigSpec = new ArrayList<VirtualDeviceConfigSpec>();
@@ -435,7 +435,11 @@ public class VMCreateWithExistingDisk extends BaseCommand {
 		diskSpec.setOperation(VirtualDeviceConfigSpecOperation.ADD);
 
 		VirtualDisk disk = new VirtualDisk();
-		VirtualDiskFlatVer2BackingInfo diskfileBacking = new VirtualDiskFlatVer2BackingInfo();
+		Description desc = new Description();
+		desc.setLabel("New Hard disk");
+		desc.setSummary("");
+		disk.setDeviceInfo(desc);
+		VirtualDiskSeSparseBackingInfo diskfileBacking = new VirtualDiskSeSparseBackingInfo();
 
 		diskfileBacking.setFileName(volName);
 		diskfileBacking.setDiskMode("persistent");
@@ -445,7 +449,7 @@ public class VMCreateWithExistingDisk extends BaseCommand {
 		disk.setControllerKey(new Integer(diskCtlrKey));
 		disk.setUnitNumber(new Integer(0));
 		disk.setBacking(diskfileBacking);
-		// disk.setCapacityInKB(700000L);
+		disk.setCapacityInKB(40960000L);
 
 		diskSpec.setDevice(disk);
 
