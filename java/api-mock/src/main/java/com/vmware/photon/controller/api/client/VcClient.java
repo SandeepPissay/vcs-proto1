@@ -1,5 +1,7 @@
 package com.vmware.photon.controller.api.client;
 
+import static com.vmware.vsphere.client.config.VcClientProperties.INSTANCE;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -17,6 +19,9 @@ import com.vmware.photon.controller.api.model.VmCreateSpec;
 import com.vmware.photon.controller.api.model.VmNetworks;
 import com.vmware.vsphere.client.CommandArgument;
 import com.vmware.vsphere.client.CommandExecutor;
+import com.vmware.vsphere.client.CommandOutput;
+import com.vmware.vsphere.client.commands.PutVMFiles;
+import com.vmware.vsphere.client.commands.VMManageCD;
 
 public class VcClient {
 	private static final Logger logger = LoggerFactory.getLogger(VcClient.class);
@@ -31,13 +36,16 @@ public class VcClient {
 
 	public void createVmAsync(String projectId, VmCreateSpec composeVmCreateSpec, FutureCallback<Task> callback) {
 		logger.info("Creating VM in project {} with specification {}", projectId, composeVmCreateSpec);
-		// TODO: Do the actual VM create
 		Map<String, String> args = new HashMap<>();
-		args.put(CommandArgument.VM_NAME, "cluster-manager-vm");
-		CommandExecutor.createVm(args);
+		args.put(CommandArgument.VM_NAME, composeVmCreateSpec.getName());
+		Map<String, String> output = CommandExecutor.createVmWithExistingDisk(args);
 
 		Task vmCreateTask = new Task();
-		String id = UUID.randomUUID().toString();
+		String id = output.get(CommandOutput.VM_MOREF);
+		if (id == null) {
+			callback.onFailure(new RuntimeException("Create VM failed"));
+			return;
+		}
 		vmCreateTask.setId(id);
 		vmCreateTask.setState("COMPLETED");
 		Entity vmEntity = new Entity();
@@ -47,9 +55,11 @@ public class VcClient {
 		callback.onSuccess(vmCreateTask);
 	}
 
-	public Task uploadAndAttachIso(String vmId, String isoFile) {
+	public Task uploadAndAttachIso(String vmId, String isoFile) throws Exception {
 		logger.info("Uploading and attaching isoFile {} to VM {}", isoFile, vmId);
 		// TODO do the upload and attach ISO
+		CommandExecutor.uploadAndAttachIso(vmId, isoFile);
+		
 		Task uploadAttachTask = new Task();
 		String id = UUID.randomUUID().toString();
 		uploadAttachTask.setId(id);
@@ -65,6 +75,11 @@ public class VcClient {
 		logger.info("Starting VM {}", vmId);
 		// TODO Start the VM
 		
+		try {
+			CommandExecutor.powerOn(vmId);
+		} catch (Exception e) {
+			futureCallback.onFailure(e);
+		}
 		Task startVm = new Task();
 		String id = UUID.randomUUID().toString();
 		startVm.setId(id);
