@@ -24,10 +24,11 @@ import com.vmware.vim25.VmConfigFaultFaultMsg;
 
 public class VMCreateFromImage extends BaseCommand {
 
-	//private static final String KUBERNETES_IMAGE_VM = "kubernetes-image-vm";
-	//private static final String KUBERNETES_IMAGE_SNAPSHOT = "kubernetes-image-vm-snapshot";
-	private static final String KUBERNETES_IMAGE_VM = "vm1";
-	private static final String KUBERNETES_IMAGE_SNAPSHOT = "vm1-snapshot";
+	 private static final String KUBERNETES_IMAGE_VM = "kubernetes-image-vm";
+	 private static final String KUBERNETES_IMAGE_SNAPSHOT =
+	 "kubernetes-image-vm-snapshot";
+	// private static final String KUBERNETES_IMAGE_VM = "vm1";
+	// private static final String KUBERNETES_IMAGE_SNAPSHOT = "vm1-snapshot";
 
 	private String vmname;
 
@@ -41,14 +42,12 @@ public class VMCreateFromImage extends BaseCommand {
 			DuplicateNameFaultMsg, VmConfigFaultFaultMsg,
 			InsufficientResourcesFaultFaultMsg, AlreadyExistsFaultMsg,
 			InvalidDatastoreFaultMsg, FileFaultFaultMsg, InvalidStateFaultMsg,
-			InvalidNameFaultMsg, TaskInProgressFaultMsg, SnapshotFaultFaultMsg, CustomizationFaultFaultMsg, MigrationFaultFaultMsg {
-		ManagedObjectReference propCol = vcService.getConnection()
-				.getServiceContent().getPropertyCollector();
-		ManagedObjectReference vmMOR = vcService.getGetMOREFs().vmByVMname(
-				KUBERNETES_IMAGE_VM, propCol);
+			InvalidNameFaultMsg, TaskInProgressFaultMsg, SnapshotFaultFaultMsg,
+			CustomizationFaultFaultMsg, MigrationFaultFaultMsg {
 
+		ManagedObjectReference vmMOR = getVmMoRef(KUBERNETES_IMAGE_VM);
 		if (vmMOR == null) {
-			vmMOR = createImageVm();
+			vmMOR = importAndDeployImageVM();//createImageVm();
 		}
 
 		checkAndCreateSnapshot();
@@ -67,24 +66,15 @@ public class VMCreateFromImage extends BaseCommand {
 		return cloneMoRef;
 	}
 
-	private ManagedObjectReference createImageVm() throws RemoteException,
-			RuntimeFaultFaultMsg, InvalidPropertyFaultMsg,
-			InvalidCollectorVersionFaultMsg, OutOfBoundsFaultMsg,
-			DuplicateNameFaultMsg, VmConfigFaultFaultMsg,
-			InsufficientResourcesFaultFaultMsg, AlreadyExistsFaultMsg,
-			InvalidDatastoreFaultMsg, FileFaultFaultMsg, InvalidStateFaultMsg,
-			InvalidNameFaultMsg, TaskInProgressFaultMsg {
-		VMCreateWithExistingDisk vmCreate = new VMCreateWithExistingDisk();
-		vmCreate.setVirtualMachineName(KUBERNETES_IMAGE_VM);
-		vmCreate.setHostname(INSTANCE.getHostName());
-		vmCreate.setDataCenterName(INSTANCE.getDatacenterName());
-		vmCreate.setDiskPath(INSTANCE.getDiskPath());
-		String morValue = null;
-		vmCreate.createVirtualMachine();
-		ManagedObjectReference vmMoRef = new ManagedObjectReference();
-		vmMoRef.setType("VirtualMachine");
-		vmMoRef.setValue(morValue);
-		return vmMoRef;
+	private ManagedObjectReference importAndDeployImageVM()
+			throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
+		OVFManagerImportLocalVApp ovfCmd = new OVFManagerImportLocalVApp();
+		ovfCmd.setDatastore(INSTANCE.getDatastoreName());
+		ovfCmd.setHost(INSTANCE.getHostName());
+		ovfCmd.setLocalPath(INSTANCE.getLocalFilePath());
+		ovfCmd.setVappName(KUBERNETES_IMAGE_VM);
+		ovfCmd.importVApp();
+		return getVmMoRef(KUBERNETES_IMAGE_VM);
 	}
 
 	private void checkAndCreateSnapshot() throws InvalidPropertyFaultMsg,
@@ -101,5 +91,13 @@ public class VMCreateFromImage extends BaseCommand {
 			vmSnapshot.setDescription("Snapshoting PhotonOS k8s image.");
 			vmSnapshot.createSnapshot();
 		}
+	}
+
+	ManagedObjectReference getVmMoRef(String vmname)
+			throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
+		ManagedObjectReference propCol = vcService.getConnection()
+				.getServiceContent().getPropertyCollector();
+		return vcService.getGetMOREFs()
+				.vmByVMname(KUBERNETES_IMAGE_VM, propCol);
 	}
 }

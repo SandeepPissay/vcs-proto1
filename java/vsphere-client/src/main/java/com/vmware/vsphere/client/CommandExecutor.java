@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.vmware.vim25.AlreadyExistsFaultMsg;
 import com.vmware.vim25.ConcurrentAccessFaultMsg;
+import com.vmware.vim25.CustomizationFaultFaultMsg;
 import com.vmware.vim25.DuplicateNameFaultMsg;
 import com.vmware.vim25.FileFaultFaultMsg;
 import com.vmware.vim25.InsufficientResourcesFaultFaultMsg;
@@ -19,12 +20,15 @@ import com.vmware.vim25.InvalidDatastoreFaultMsg;
 import com.vmware.vim25.InvalidNameFaultMsg;
 import com.vmware.vim25.InvalidPropertyFaultMsg;
 import com.vmware.vim25.InvalidStateFaultMsg;
+import com.vmware.vim25.MigrationFaultFaultMsg;
 import com.vmware.vim25.OutOfBoundsFaultMsg;
 import com.vmware.vim25.RuntimeFaultFaultMsg;
+import com.vmware.vim25.SnapshotFaultFaultMsg;
 import com.vmware.vim25.TaskInProgressFaultMsg;
 import com.vmware.vim25.VmConfigFaultFaultMsg;
 import com.vmware.vsphere.client.commands.PutVMFiles;
 import com.vmware.vsphere.client.commands.VMCreate;
+import com.vmware.vsphere.client.commands.VMCreateFromImage;
 import com.vmware.vsphere.client.commands.VMCreateWithExistingDisk;
 import com.vmware.vsphere.client.commands.VMManageCD;
 
@@ -35,23 +39,25 @@ public class CommandExecutor {
 
 	public static Map<String, String> createVm(Map<String, String> args) {
 		Map<String, String> output = new HashMap<>();
-		VMCreate vmCreate = new VMCreate();
-		vmCreate.setVirtualMachineName(args.get(CommandArgument.VM_NAME));
-		vmCreate.setHostname(INSTANCE.getHostName());
-		vmCreate.setDataCenterName(INSTANCE.getDatacenterName());
-		try {
-			output.put(CommandOutput.VM_MOREF, vmCreate.createVirtualMachine());
-		} catch (RemoteException | RuntimeFaultFaultMsg
-				| InvalidPropertyFaultMsg | InvalidCollectorVersionFaultMsg
-				| OutOfBoundsFaultMsg | DuplicateNameFaultMsg
-				| VmConfigFaultFaultMsg | InsufficientResourcesFaultFaultMsg
-				| AlreadyExistsFaultMsg | InvalidDatastoreFaultMsg
-				| FileFaultFaultMsg | InvalidStateFaultMsg
-				| InvalidNameFaultMsg | TaskInProgressFaultMsg e) {
-			String message = "VM creation for parameters " + args + "failed.";
-			logger.error(message, e);
-			throw new RuntimeException(message, e);
-		}
+		String vmname = args.get(CommandArgument.VM_NAME);
+		VMCreateFromImage vmCreate = new VMCreateFromImage();
+		vmCreate.setVmname(vmname);
+
+			try {
+				output.put(CommandOutput.VM_MOREF, vmCreate.createVmFromImage());
+			} catch (RemoteException | InvalidPropertyFaultMsg
+					| RuntimeFaultFaultMsg | InvalidCollectorVersionFaultMsg
+					| OutOfBoundsFaultMsg | DuplicateNameFaultMsg
+					| VmConfigFaultFaultMsg
+					| InsufficientResourcesFaultFaultMsg
+					| AlreadyExistsFaultMsg | InvalidDatastoreFaultMsg
+					| FileFaultFaultMsg | InvalidStateFaultMsg
+					| InvalidNameFaultMsg | TaskInProgressFaultMsg
+					| SnapshotFaultFaultMsg | CustomizationFaultFaultMsg
+					| MigrationFaultFaultMsg e) {
+				logger.error("Error occurred while creating {} VM.", vmname, e);
+			}
+
 		return output;
 	}
 

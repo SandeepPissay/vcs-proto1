@@ -20,8 +20,6 @@ import com.vmware.photon.controller.api.model.VmNetworks;
 import com.vmware.vsphere.client.CommandArgument;
 import com.vmware.vsphere.client.CommandExecutor;
 import com.vmware.vsphere.client.CommandOutput;
-import com.vmware.vsphere.client.commands.PutVMFiles;
-import com.vmware.vsphere.client.commands.VMManageCD;
 
 public class VcClient {
 	private static final Logger logger = LoggerFactory.getLogger(VcClient.class);
@@ -38,7 +36,7 @@ public class VcClient {
 		logger.info("Creating VM in project {} with specification {}", projectId, composeVmCreateSpec);
 		Map<String, String> args = new HashMap<>();
 		args.put(CommandArgument.VM_NAME, composeVmCreateSpec.getName());
-		Map<String, String> output = CommandExecutor.createVmWithExistingDisk(args);
+		Map<String, String> output = CommandExecutor.createVm(args);
 
 		Task vmCreateTask = new Task();
 		String id = output.get(CommandOutput.VM_MOREF);
