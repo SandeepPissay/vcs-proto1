@@ -22,7 +22,7 @@ import com.vmware.photon.controller.clustermanager.rolloutplans.NodeRolloutResul
 import com.vmware.photon.controller.clustermanager.rolloutplans.SlavesNodeRollout;
 import com.vmware.photon.controller.clustermanager.servicedocuments.ClusterManagerConstants;
 import com.vmware.photon.controller.clustermanager.servicedocuments.NodeType;
-import com.vmware.photon.controller.clustermanager.templates.KubernetesSlaveNodeTemplate;
+import com.vmware.photon.controller.clustermanager.templates.KubernetesWorkerNodeTemplate;
 import com.vmware.photon.controller.clustermanager.templates.MesosSlaveNodeTemplate;
 import com.vmware.photon.controller.clustermanager.templates.NodeTemplateUtils;
 import com.vmware.photon.controller.clustermanager.templates.SwarmSlaveNodeTemplate;
@@ -277,8 +277,12 @@ public class ClusterExpandTaskService extends StatefulService {
           String cn = clusterDocument.extendedProperties.get(
               ClusterManagerConstants.EXTENDED_PROPERTY_CONTAINER_NETWORK);
 
-          input.serverAddress = masterIp;
-          input.nodeProperties = KubernetesSlaveNodeTemplate.createProperties(etcdIps, cn, masterIp);
+		  // TODO add appropriate ssh key and certificate.
+		  String caCert = "";
+		  String sshKey = "";
+		  input.serverAddress = masterIp;
+		  input.nodeProperties = KubernetesWorkerNodeTemplate
+						.createProperties(etcdIps, cn, masterIp, sshKey, caCert);
           input.nodeType = NodeType.KubernetesSlave;
           break;
         }

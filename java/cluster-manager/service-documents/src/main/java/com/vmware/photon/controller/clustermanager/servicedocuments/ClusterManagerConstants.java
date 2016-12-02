@@ -31,14 +31,31 @@ public class ClusterManagerConstants {
   public static final String EXTENDED_PROPERTY_CONTAINER_NETWORK = "container_network";
   public static final String EXTENDED_PROPERTY_ZOOKEEPER_IPS     = "zookeeper_ips";
   public static final String EXTENDED_PROPERTY_ETCD_IPS          = "etcd_ips";
-
+  public static final String EXTENDED_PROPERTY_CLUSTER_VERSION          = "cluster_version";
+  public static final String EXTENDED_PROPERTY_CLUSTER_UI_URL           = "cluster_ui_url";
+  public static final String EXTENDED_PROPERTY_CLIENT_LINUX_AMD64_URL   = "client_linux_amd64_url";
+  public static final String EXTENDED_PROPERTY_CLIENT_LINUX_386_URL     = "client_linux_386_url";
+  public static final String EXTENDED_PROPERTY_CLIENT_DARWIN_AMD64_URL  = "client_darwin_amd64_url";
+  public static final String EXTENDED_PROPERTY_CLIENT_WINDOWS_AMD64_URL = "client_windows_amd64_url";
+  public static final String EXTENDED_PROPERTY_CLIENT_WINDOWS_386_URL   = "client_windows_386_url";
+  public static final String EXTENDED_PROPERTY_SSH_KEY                  = "ssh_key";
+  public static final String EXTENDED_PROPERTY_ADMIN_PASSWORD           = "admin_password";
+  public static final String EXTENDED_PROPERTY_REGISTRY_CA_CERTIFICATE  = "registry_ca_cert";
+  public static final String EXTENDED_PROPERTY_CA_CERTIFICATE           = "ca_cert";
   public static final long DEFAULT_MAINTENANCE_INTERVAL = TimeUnit.HOURS.toMicros(1);
   public static final int DEFAULT_MAINTENANCE_RETRY_COUNT = 5;
   public static final int DEFAULT_MAINTENANCE_RETRY_INTERVAL_SECOND = 5;
   public static final int DEFAULT_TASK_POLL_DELAY = 1000;
   public static final int SCRIPT_TIMEOUT_IN_SECONDS = 600;
-
+  public static final String KUBECTL_BASE_URI                           = "storage.googleapis.com";
+  public static final String KUBECTL_PATH_RELEASE                       = "kubernetes-release/release";
+  public static final String BIN                                        = "bin";
+  public static final String KUBECTL                                    = "kubectl";
   public static final int DEFAULT_BATCH_EXPANSION_SIZE = 20;
+
+  public static class Harbor {
+	  public static final int HARBOR_PORT = 8080;
+  }
 
   /**
    * This class defines constant values for Kubernetes cluster.

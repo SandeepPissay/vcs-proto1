@@ -24,15 +24,17 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Defines the template for Kubernetes Slave Nodes.
+ * Defines the template for Kubernetes Worker Nodes.
  */
-public class KubernetesSlaveNodeTemplate implements NodeTemplate {
+public class KubernetesWorkerNodeTemplate implements NodeTemplate {
 
-  public static final String SLAVE_USER_DATA_TEMPLATE = "kubernetes-slave-user-data.template";
+  public static final String WORKER_USER_DATA_TEMPLATE = "kubernetes-worker-user-data.template";
   public static final String ETCD_IPS_PROPERTY = "etcdIps";
   public static final String CONTAINER_NETWORK_PROPERTY = "containerNetwork";
   public static final String MASTER_IP_PROPERTY = "masterIp";
-  public static final String VM_NAME_PREFIX = "slave";
+  public static final String VM_NAME_PREFIX = "worker";
+  public static final String SSH_KEY_PROPERTY = "sshKey";
+  public static final String CA_CERT_PROPERTY = "caCert";
 
   public String getVmName(Map<String, String> properties) {
     Preconditions.checkNotNull(properties, "properties cannot be null");
@@ -46,6 +48,8 @@ public class KubernetesSlaveNodeTemplate implements NodeTemplate {
     Preconditions.checkNotNull(properties, "properties cannot be null");
 
     List<String> etcdIps = NodeTemplateUtils.deserializeAddressList(properties.get(ETCD_IPS_PROPERTY));
+    String sshKey = properties.get(SSH_KEY_PROPERTY);
+    String caCert = properties.get(CA_CERT_PROPERTY);
 
     Map<String, String> parameters = new HashMap<>();
     parameters.put("$ETCD_QUORUM", NodeTemplateUtils.createEtcdQuorumString(etcdIps));
@@ -53,9 +57,11 @@ public class KubernetesSlaveNodeTemplate implements NodeTemplate {
     parameters.put("$KUBERNETES_PORT", String.valueOf(ClusterManagerConstants.Kubernetes.API_PORT));
     parameters.put("$MASTER_ADDRESS", properties.get(MASTER_IP_PROPERTY));
     parameters.put("$LOCAL_HOSTNAME", getVmName(properties));
+    parameters.put("$SSH_KEY", sshKey);
+    parameters.put("$CA_CERT", KubernetesMasterNodeTemplate.fixIndentationForCertificate(caCert));
 
     FileTemplate template = new FileTemplate();
-    template.filePath = Paths.get(scriptDirectory, SLAVE_USER_DATA_TEMPLATE).toString();
+    template.filePath = Paths.get(scriptDirectory, WORKER_USER_DATA_TEMPLATE).toString();
     template.parameters = parameters;
     return template;
   }
@@ -68,7 +74,8 @@ public class KubernetesSlaveNodeTemplate implements NodeTemplate {
   }
 
   public static Map<String, String> createProperties(List<String> etcdAddresses,
-                                                     String containerNetwork, String masterIp) {
+                                                     String containerNetwork, String masterIp, String sshKey,
+                                                     String caCert) {
     Preconditions.checkNotNull(etcdAddresses, "etcdAddresses cannot be null");
     Preconditions.checkArgument(etcdAddresses.size() > 0, "etcdAddresses should contain at least one address");
     Preconditions.checkNotNull(containerNetwork, "containerNetwork cannot be null");
@@ -78,6 +85,9 @@ public class KubernetesSlaveNodeTemplate implements NodeTemplate {
     properties.put(ETCD_IPS_PROPERTY, NodeTemplateUtils.serializeAddressList(etcdAddresses));
     properties.put(CONTAINER_NETWORK_PROPERTY, containerNetwork);
     properties.put(MASTER_IP_PROPERTY, masterIp);
+    properties.put(SSH_KEY_PROPERTY, sshKey);
+    properties.put(CA_CERT_PROPERTY, caCert);
+
     return properties;
   }
 }

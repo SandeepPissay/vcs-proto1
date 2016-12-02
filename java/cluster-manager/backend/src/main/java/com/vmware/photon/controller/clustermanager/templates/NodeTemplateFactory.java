@@ -26,13 +26,13 @@ public class NodeTemplateFactory {
   public static NodeTemplate createInstance(NodeType nodeType) {
     switch (nodeType) {
       case KubernetesEtcd:
-        return new EtcdNodeTemplate();
+        return new KubernetesEtcdNodeTemplate();
 
       case KubernetesMaster:
         return new KubernetesMasterNodeTemplate();
 
       case KubernetesSlave:
-        return new KubernetesSlaveNodeTemplate();
+        return new KubernetesWorkerNodeTemplate();
 
       case MesosZookeeper:
         return new ZookeeperNodeTemplate();
@@ -47,7 +47,7 @@ public class NodeTemplateFactory {
         return new MarathonNodeTemplate();
 
       case SwarmEtcd:
-        return new EtcdNodeTemplate();
+        return new KubernetesEtcdNodeTemplate();
 
       case SwarmMaster:
         return new SwarmMasterNodeTemplate();
