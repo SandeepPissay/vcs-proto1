@@ -24,7 +24,7 @@ Currently the prototype has been tested by running the service in eclipse only.
 ### Property files
 * Edit java/common/src/main/resources/vcs.properties file as per your dev environment setup.
 * Edit java/vsphere-client/src/main/resources/vsphere-client.properties to point to your vCenter setup.
-** One of the working kubernetes image is included [project-dir]/vcs-proto1/images/kubernetes directory.
+** One of the working kubernetes image is available here http://pa-dbc1131.eng.vmware.com/prashimas/misc/images/kubernetes/, currently accessible from within VMware network (will fix this soon!).
 
 ### Running the service
 * The main class for this service is com.vmware.vcs.core.Main. Run this as Java application with the following program and VM arguments.
