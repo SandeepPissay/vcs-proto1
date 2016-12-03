@@ -38,12 +38,19 @@ source $tools/common.sh
 
 echo "Create VM CD-ROM ($iso_file) ..."
 
-# generate the ISO
+# get command to generate ISO
 iso_cmd=$(which genisoimage)
+if [ -z "$iso_cmd" ]
+then
+   iso_cmd=$(which mkisofs)
+fi
+
 if [ -z "$iso_cmd" ]
 then
     echo "Error: No tool that can generate iso images from a file was found."
     exit 1
+else
+    echo "Using $iso_cmd for ISO generation"
 fi
 
 # create the ISO file with settings.env inside it
@@ -58,5 +65,6 @@ then
   cp -r $config_dir/* $tmp_dir/mustache
 fi
 
+# generate the ISO
 $iso_cmd -o $iso_file -volid cidata -joliet -rock $tmp_dir
 rm -rf $tmp_dir
