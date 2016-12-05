@@ -41,13 +41,14 @@ Users will need REST API client to interacte with this service.
 * GET http://127.0.0.1:19000/vcs/cloudstore/clusters
   * Lists all clusters created with this service.
 
-* DELETE * GET http://127.0.0.1:19000/vcs/cloudstore/clusters/<cluster-uuid>
+* DELETE http://127.0.0.1:19000/vcs/cloudstore/clusters/<cluster-uuid>
   * Deletes the cluster.
 
 * POST http://127.0.0.1:19000/vcs/clustermanager/vcs-cluster-create
   * Creates a kubernestes cluster as per the passed arguments passed and set in the properties files.
   * Sample Body
 
+``` json
  { "clusterState" : "CREATING",
    "clusterName" : "cluster1", 
    "clusterType" : "KUBERNETES", 
@@ -67,7 +68,7 @@ Users will need REST API client to interacte with this service.
       "container_network" : "10.20.0.1/20" 
      } 
   }
-
+```
   * Modify clusterName, etcd_ips, dns, gateway, netmask, master_ip to appropriate values as per your setup.
 
 # Note
