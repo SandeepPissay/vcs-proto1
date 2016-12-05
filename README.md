@@ -48,26 +48,25 @@ Users will need REST API client to interacte with this service.
   * Creates a kubernestes cluster as per the passed arguments passed and set in the properties files.
   * Sample Body
 
- {
- "clusterState" : "CREATING",
- "clusterName" : "cluster1",
- "clusterType" : "KUBERNETES",
- "imageId" : "Kubernetes-image.vmdk",
- "projectId" : "k8s-project",
- "vmNetworkId" : "VM Network",
- "diskFlavorName" : "Disk flavor",
- "masterVmFlavorName" : "Master flavor",
- "otherVmFlavorName" : "Slave Flavor",
- "slaveCount" : "1",
- "extendedProperties" : {
-  "etcd_ips" : "10.20.104.90",
-  "dns" : "10.20.145.1",
-  "gateway" : "10.20.107.253",
-  "netmask" : "255.255.252.0",
-  "master_ip" : "10.20.104.92",
-  "container_network" : "10.20.0.1/20"
+ { "clusterState" : "CREATING",
+   "clusterName" : "cluster1", 
+   "clusterType" : "KUBERNETES", 
+   "imageId" : "Kubernetes-image.vmdk", 
+   "projectId" : "k8s-project", 
+   "vmNetworkId" : "VM Network", 
+   "diskFlavorName" : "Disk flavor", 
+   "masterVmFlavorName" : "Master flavor", 
+   "otherVmFlavorName" : "Slave Flavor", 
+   "slaveCount" : "1", 
+   "extendedProperties" : { 
+      "etcd_ips" : "10.20.104.90", 
+      "dns" : "10.20.145.1", 
+      "gateway" : "10.20.107.253", 
+      "netmask" : "255.255.252.0", 
+      "master_ip" : "10.20.104.92", 
+      "container_network" : "10.20.0.1/20" 
+     } 
   }
- }
 
   * Modify clusterName, etcd_ips, dns, gateway, netmask, master_ip to appropriate values as per your setup.
 
